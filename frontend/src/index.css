@@ -1,0 +1,89 @@
+/* google fonts: */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+/* flowbite js: */
+@import "flowbite/src/themes/default";
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite/";
+
+/* tailwind v4: */
+@import "tailwindcss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  background-color: #4E5166;
+  font-size: 16px;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* background colors */
+
+.bgColor1 {
+  background-color: #4E5166;
+}
+
+.bgColor2 {
+  background-color: #c8cede;
+}
+
+.bgColor3 {
+  background-color: #B5AA9D;
+}
+
+.bgColor4 {
+  background-color: #B9B7A7;
+}
+
+.bgColor5 {
+  background-color: #747274;
+}
+
+/* colors */
+
+.color1 {
+  color: #4E5166;
+}
+
+.color2 {
+  color: #7C90A0;
+}
+
+.color3 {
+  color: #B5AA9D;
+}
+
+.color4 {
+  color: #B9B7A7;
+}
+
+.color5 {
+  color: #747274;
+}
+
+/* DESKTOP */
+
+h1 {
+  font-size: 36px;
+}
+
+h2 {
+  font-size: 30px
+}
+
+h3 {
+  font-size: 24px;
+}
+
+h4 {
+  font-size: 20px
+}
