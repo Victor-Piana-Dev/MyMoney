@@ -1,4 +1,9 @@
-export function ListTab({activeTab, tab, billings, handleOnClickAlterar, setGuardaDadosParaAlterar, handleOnClickExcluir}){
+import { useHandleOnClickAlterar } from "../hooks/useHandleOnClickAlterar";
+
+export function ListTab({activeTab, tab, billings, setGuardaDadosParaAlterar, handleOnClickExcluir}){
+    
+    const handleOnClickAlterar = useHandleOnClickAlterar()
+    
     return(
         <>
         {/* Aba Listar */}

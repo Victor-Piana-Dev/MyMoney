@@ -1,3 +1,4 @@
+import { useHandleBack } from "../hooks/useHandleBack";
 import { ValueBoxGroup } from "./ValueBoxGroup";
 
 export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDadosParaAlterar, handleAddCreditAlterar, handleRemoveCreditAlterar, handleAddDebitAlterar, handleRemoveDebitAlterar, handleVoltar, handleOnClickAlterarBillingCycle}) {
@@ -5,6 +6,8 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
 
     let totalCreditValueAlterar = 0
     let totalDebitValueAlterar = 0
+
+    const handleBack = useHandleBack()
 
     return (
         <>
@@ -156,7 +159,7 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                         >
                             Alterar e Salvar
                         </button>
-                        <button className="!p-4 bgColor3 text-white !mt-10 !ml-4 cursor-pointer rounded" onClick={handleVoltar}>Voltar para a listagem</button>
+                        <button className="!p-4 bgColor3 text-white !mt-10 !ml-4 cursor-pointer rounded" onClick={handleBack}>Voltar para a listagem</button>
 
                         <div className="!mt-20">
 

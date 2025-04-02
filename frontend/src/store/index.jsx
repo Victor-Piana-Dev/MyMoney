@@ -3,6 +3,9 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Usa localStorage
 import { combineReducers } from "redux";
 import userSlice from "./reducers/userSlice"; 
+import mostrarAlterarSlice from './reducers/HandleChangeSlice'
+import listarIncluirSlice from './reducers/HandleTabsListIncludeSlice'
+import activeTabSlice from './reducers/ActiveTabSlice'
 
 // Configuração do Redux Persist
 const persistConfig = {
@@ -14,6 +17,9 @@ const persistConfig = {
 // Combina os reducers(por enquanto estamos usando apenas o user)
 const rootReducer = combineReducers({
     user: userSlice, 
+    mostrarAlterar: mostrarAlterarSlice,
+    listarIncluir: listarIncluirSlice,
+    activeTab: activeTabSlice,
 });
 
 // Aplica persistência ao reducer

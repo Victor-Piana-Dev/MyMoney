@@ -3,12 +3,12 @@ import { setMostrarAlterar } from "../store/reducers/HandleChangeSlice";
 import { setMostrarListarIncluir } from "../store/reducers/HandleTabsListIncludeSlice";
 import { setActiveTab } from "../store/reducers/ActiveTabSlice";
 
-export function useHandleOnClickAlterar() {
+export function useHandleBack() {
     const dispatch = useDispatch();
 
     return () => {
-        dispatch(setMostrarAlterar(true));  // Ativa a aba "Alterar"
-        dispatch(setMostrarListarIncluir(false));  // Oculta "Listar/Incluir"
-        dispatch(setActiveTab("alterar"));  // Define a aba ativa como "alterar"
+        dispatch(setMostrarAlterar(false));  
+        dispatch(setMostrarListarIncluir(true));  
+        dispatch(setActiveTab("listar")); 
     };
 }

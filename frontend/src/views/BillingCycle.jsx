@@ -3,15 +3,14 @@ import { createBillingCycle, deleteBillingCycle, updateBillingCycle, useGetBilli
 import { ListTab } from "../components/ListTab";
 import { IncludeTab } from "../components/IncludeTab";
 import { ChangeTab } from "../components/ChangeTab";
+import { useDispatch, useSelector } from "react-redux"
+import { setActiveTab } from "../store/reducers/ActiveTabSlice";
 
 export function BillingCycle() {
     const { billings, pegaBillingCycles } = useGetBillingCycles();
 
     const [message, setMessage] = useState(""); // Estado para armazenar mensagens
     const [messageType, setMessageType] = useState("success"); // Define tipo de mensagem
-    const [mostrarAlterar, setMostrarAlterar] = useState(false);
-    const [mostrarListarIncluir, setMostrarListarIncluir] = useState(true);
-    const [activeTab, setActiveTab] = useState("listar"); // Estado para controlar a aba ativa
     const [creditName, setCreditName] = useState("");  // Estado para o nome do primeiro input do incluir name
     const [creditValue, setCreditValue] = useState(""); // Estado para para o value do primeiro input do incluir value
     const [creditsListState, setCreditsListState] = useState([]);   // Estado para manter os objetos dos demais inputs dos campos de inclusão
@@ -33,14 +32,14 @@ export function BillingCycle() {
     const inputMonthRef = useRef('');
     const inputYearRef = useRef('');
 
-    function handleTabClick(tab) {
-        setActiveTab(tab); // Atualiza a aba ativa
-    }
+    const mostrarListarIncluir = useSelector((state) => state.listarIncluir.mostrarListarIncluir);
+    const activeTab = useSelector((state) => state.activeTab.activeTab)
+    const mostrarAlterar = useSelector((state) => state.mostrarAlterar.mostrarAlterar)
+    
+    const dispatch = useDispatch();
 
-    function handleOnClickAlterar() {
-        setMostrarAlterar(true)
-        setMostrarListarIncluir(false)
-        setActiveTab('alterar')
+    function handleTabClick(tab) {
+        dispatch(setActiveTab(tab)) // Atualiza a aba ativa
     }
 
     // Função para adicionar um novo par de inputs para crédito
@@ -194,13 +193,6 @@ export function BillingCycle() {
         });
     }
 
-    function handleVoltar() {
-        setMostrarAlterar(false)
-        setMostrarListarIncluir(true)
-        setActiveTab('listar')
-    }
-
-
     function handleAddCreditAlterar() {
         setGuardaDadosParaAlterar((prevData) => ({
             ...prevData,
@@ -261,7 +253,7 @@ export function BillingCycle() {
             <div id="default-tab-content">
 
                 {/*Conteúdo Aba Listar */}
-                <ListTab activeTab={activeTab} tab="listar" billings={billings} handleOnClickAlterar={handleOnClickAlterar} setGuardaDadosParaAlterar={setGuardaDadosParaAlterar} handleOnClickExcluir={handleOnClickExcluir}></ListTab>
+                <ListTab activeTab={activeTab} tab="listar" billings={billings} setGuardaDadosParaAlterar={setGuardaDadosParaAlterar} handleOnClickExcluir={handleOnClickExcluir}></ListTab>
 
 
                 {/*Conteúdo Aba Incluir */}
@@ -269,7 +261,7 @@ export function BillingCycle() {
 
 
                 {/*Conteúdo Aba Alterar */}
-                <ChangeTab activeTab={activeTab} tab="alterar" guardaDadosParaAlterar={guardaDadosParaAlterar} setGuardaDadosParaAlterar={setGuardaDadosParaAlterar} handleAddCreditAlterar={handleAddCreditAlterar} handleRemoveCreditAlterar={handleRemoveCreditAlterar} handleAddDebitAlterar={handleAddDebitAlterar} handleRemoveDebitAlterar={handleRemoveDebitAlterar} handleVoltar={handleVoltar} handleOnClickAlterarBillingCycle={handleOnClickAlterarBillingCycle}></ChangeTab>
+                <ChangeTab activeTab={activeTab} tab="alterar" guardaDadosParaAlterar={guardaDadosParaAlterar} setGuardaDadosParaAlterar={setGuardaDadosParaAlterar} handleAddCreditAlterar={handleAddCreditAlterar} handleRemoveCreditAlterar={handleRemoveCreditAlterar} handleAddDebitAlterar={handleAddDebitAlterar} handleRemoveDebitAlterar={handleRemoveDebitAlterar} handleOnClickAlterarBillingCycle={handleOnClickAlterarBillingCycle}></ChangeTab>
 
             </div>
         </div>
