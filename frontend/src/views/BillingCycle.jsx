@@ -5,20 +5,23 @@ import { IncludeTab } from "../components/IncludeTab";
 import { ChangeTab } from "../components/ChangeTab";
 import { useDispatch, useSelector } from "react-redux"
 import { setActiveTab } from "../store/reducers/ActiveTabSlice";
+import { setCreditsListState } from "../store/reducers/HandleCreditsList";
+import { setDebtsListState } from "../store/reducers/HandleDebtsList";
 
 export function BillingCycle() {
+    
+    const dispatch = useDispatch();
+
     const { billings, pegaBillingCycles } = useGetBillingCycles();
 
     const [message, setMessage] = useState(""); // Estado para armazenar mensagens
     const [messageType, setMessageType] = useState("success"); // Define tipo de mensagem
     const [creditName, setCreditName] = useState("");  // Estado para o nome do primeiro input do incluir name
     const [creditValue, setCreditValue] = useState(""); // Estado para para o value do primeiro input do incluir value
-    const [creditsListState, setCreditsListState] = useState([]);   // Estado para manter os objetos dos demais inputs dos campos de inclusão
     const [debitName, setDebitName] = useState("");
     const [debitValue, setDebitValue] = useState("");
-    const [debtsListState, setDebtsListState] = useState([]);
     const [debitStatusInit, setDebitStatusInit] = useState("PENDENTE");
-
+    
     const [guardaDadosParaAlterar, setGuardaDadosParaAlterar] = useState({
         id: "",
         name: "",
@@ -35,37 +38,14 @@ export function BillingCycle() {
     const mostrarListarIncluir = useSelector((state) => state.listarIncluir.mostrarListarIncluir);
     const activeTab = useSelector((state) => state.activeTab.activeTab)
     const mostrarAlterar = useSelector((state) => state.mostrarAlterar.mostrarAlterar)
-    
-    const dispatch = useDispatch();
+
+    const creditsListState = useSelector(state => state.credits.creditsListState);
+    const debtsListState = useSelector(state => state.debts.debtsListState);
 
     function handleTabClick(tab) {
         dispatch(setActiveTab(tab)) // Atualiza a aba ativa
     }
 
-    // Função para adicionar um novo par de inputs para crédito
-    function handleAddCredit() {
-        // console.log(creditsListState)
-        setCreditsListState([...creditsListState, { name: "", value: "" }]);
-    }
-
-    // Função para atualizar o valor de um crédito específico
-    function handleCreditChange(index, field, value) {
-        const updatedCredits = [...creditsListState];
-        updatedCredits[index] = { ...updatedCredits[index], [field]: value };
-        setCreditsListState(updatedCredits);
-    }
-
-    // Função para adicionar um novo par de inputs para débito
-    function handleAddDebit() {
-        setDebtsListState([...debtsListState, { name: "", value: "", status: "PENDENTE" }]);
-    }
-
-    // Função para atualizar o valor de um débito específico
-    function handleDebtChange(index, field, value) {
-        const updatedDebts = [...debtsListState];
-        updatedDebts[index] = { ...updatedDebts[index], [field]: value };
-        setDebtsListState(updatedDebts);
-    }
 
     async function handleOnClickIncluir() {
         const name = inputNameRef.current.value;
@@ -96,11 +76,11 @@ export function BillingCycle() {
 
             setCreditName("")
             setCreditValue("")
-            setCreditsListState([]);
+            dispatch(setCreditsListState([]));
 
             setDebitName("")
             setDebitValue("")
-            setDebtsListState([]);
+            dispatch(setDebtsListState([]));
 
         } catch (errorMessage) {
             setMessage(errorMessage);
@@ -147,23 +127,6 @@ export function BillingCycle() {
         window.scrollTo({ top: 0, behavior: "smooth" });
         setTimeout(() => setMessage(""), 5000);
     }
-
-    function handleRemoveCreditIncluir(index) {
-        setCreditsListState(function (prevCredits) {
-            return prevCredits.filter(function (_, i) {
-                return i !== index;
-            });
-        });
-    }
-
-    function handleRemoveDebitIncluir(index) {
-        setDebtsListState(function (prevDebts) {
-            return prevDebts.filter(function (_, i) {
-                return i !== index;
-            });
-        });
-    }
-
 
     function handleRemoveCreditAlterar(index) {
         setGuardaDadosParaAlterar((prevData) => {
@@ -257,7 +220,7 @@ export function BillingCycle() {
 
 
                 {/*Conteúdo Aba Incluir */}
-                <IncludeTab activeTab={activeTab} tab="incluir" inputNameRef={inputNameRef} inputMonthRef={inputMonthRef} inputYearRef={inputYearRef} creditName={creditName} creditValue={creditValue} setCreditName={setCreditName} setCreditValue={setCreditValue} handleAddCredit={handleAddCredit} creditsListState={creditsListState} handleCreditChange={handleCreditChange} handleRemoveCreditIncluir={handleRemoveCreditIncluir} debitName={debitName} setDebitName={setDebitName} debitStatusInit={debitStatusInit} setDebitValue={setDebitValue} setDebitStatusInit={setDebitStatusInit} handleAddDebit={handleAddDebit} debtsListState={debtsListState} handleDebtChange={handleDebtChange} handleRemoveDebitIncluir={handleRemoveDebitIncluir} handleOnClickIncluir={handleOnClickIncluir} debitValue={debitValue}></IncludeTab>
+                <IncludeTab activeTab={activeTab} tab="incluir" inputNameRef={inputNameRef} inputMonthRef={inputMonthRef} inputYearRef={inputYearRef} creditName={creditName} creditValue={creditValue} setCreditName={setCreditName} setCreditValue={setCreditValue} debitName={debitName} setDebitName={setDebitName} debitStatusInit={debitStatusInit} setDebitValue={setDebitValue} setDebitStatusInit={setDebitStatusInit} handleOnClickIncluir={handleOnClickIncluir} debitValue={debitValue}></IncludeTab>
 
 
                 {/*Conteúdo Aba Alterar */}

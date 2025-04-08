@@ -6,6 +6,8 @@ import userSlice from "./reducers/userSlice";
 import mostrarAlterarSlice from './reducers/HandleChangeSlice'
 import listarIncluirSlice from './reducers/HandleTabsListIncludeSlice'
 import activeTabSlice from './reducers/ActiveTabSlice'
+import creditsSlice from './reducers/HandleCreditsList'
+import debtsSlice from './reducers/HandleDebtsList'
 
 // Configuração do Redux Persist
 const persistConfig = {
@@ -20,6 +22,8 @@ const rootReducer = combineReducers({
     mostrarAlterar: mostrarAlterarSlice,
     listarIncluir: listarIncluirSlice,
     activeTab: activeTabSlice,
+    credits: creditsSlice,
+    debts: debtsSlice,
 });
 
 // Aplica persistência ao reducer

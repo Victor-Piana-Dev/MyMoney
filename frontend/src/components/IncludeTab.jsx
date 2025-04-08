@@ -1,9 +1,51 @@
+import { useDispatch, useSelector } from "react-redux";
 import { ValueBoxGroup } from "./ValueBoxGroup"
+import { addCredit, removeCredit, updateCredit } from "../store/reducers/HandleCreditsList";
+import { addDebit, removeDebit, updateDebit } from "../store/reducers/HandleDebtsList";
 
-export function IncludeTab({activeTab, tab, inputNameRef, inputMonthRef, inputYearRef, creditName, creditValue, setCreditName, setCreditValue, handleAddCredit, creditsListState, handleCreditChange, handleRemoveCreditIncluir, setDebitName, debitStatusInit, setDebitValue, setDebitStatusInit, handleAddDebit, debtsListState, handleDebtChange, handleRemoveDebitIncluir, handleOnClickIncluir, debitName, debitValue}) {
+export function IncludeTab({activeTab, tab, inputNameRef, inputMonthRef, inputYearRef, creditName, creditValue, setCreditName, setCreditValue, setDebitName, debitStatusInit, setDebitValue, setDebitStatusInit, handleOnClickIncluir, debitName, debitValue}) {
     
     let debitValueNumber = 0
     let creditValueNumber = 0
+
+    const dispatch = useDispatch();
+
+    const creditsListState = useSelector(state => state.credits.creditsListState);
+    const debtsListState = useSelector(state=> state.debts.debtsListState)
+
+    // Função para adicionar um novo par de inputs para crédito
+    function handleAddCredit() {
+        dispatch(addCredit())
+        console.log(creditsListState)
+    }
+    
+    // Função para atualizar o valor de um crédito específico
+
+    function handleCreditChange(index, field, value) {
+        dispatch(updateCredit({ index, field, value }));
+    }
+
+    // Função para a remoção de um conjunto de campos de crédito
+
+    function handleRemoveCreditIncluir(index) {
+        dispatch(removeCredit(index));
+    }
+
+    // Função para adicionar um novo par de inputs para débito
+
+    function handleAddDebit() {
+        dispatch(addDebit())
+    }
+
+    // Função para atualizar o valor de um débito específico
+
+    function handleDebtChange(index, field, value) {
+        dispatch(updateDebit({ index, field, value }));
+    }
+
+    function handleRemoveDebitIncluir(index) {
+        dispatch(removeDebit(index));
+    }
     
     return (
         <>
