@@ -1,24 +1,43 @@
 import { useDispatch, useSelector } from "react-redux";
 import { ValueBoxGroup } from "./ValueBoxGroup"
-import { addCredit, removeCredit, updateCredit } from "../store/reducers/HandleCreditsList";
-import { addDebit, removeDebit, updateDebit } from "../store/reducers/HandleDebtsList";
+import { addCredit, removeCredit, setCreditsListState, updateCredit } from "../store/reducers/HandleCreditsList";
+import { addDebit, removeDebit, setDebtsListState, updateDebit } from "../store/reducers/HandleDebtsList";
+import { useRef, useState } from "react";
+import { createBillingCycle, useGetBillingCycles } from "../services/service.module";
+import { setMessageType } from "../store/reducers/MessageTypeSlice";
+import { setMessage } from '../store/reducers/MessageSlice'
 
-export function IncludeTab({activeTab, tab, inputNameRef, inputMonthRef, inputYearRef, creditName, creditValue, setCreditName, setCreditValue, setDebitName, debitStatusInit, setDebitValue, setDebitStatusInit, handleOnClickIncluir, debitName, debitValue}) {
-    
+export function IncludeTab({ activeTab, tab }) {
+
     let debitValueNumber = 0
     let creditValueNumber = 0
 
     const dispatch = useDispatch();
 
+    const { billings, pegaBillingCycles } = useGetBillingCycles();
+
+    // const message = useSelector((state) => state.message.text);
+
     const creditsListState = useSelector(state => state.credits.creditsListState);
-    const debtsListState = useSelector(state=> state.debts.debtsListState)
+    const debtsListState = useSelector(state => state.debts.debtsListState)
+
+    const inputNameRef = useRef('');
+    const inputMonthRef = useRef('');
+    const inputYearRef = useRef('');
+
+    const [creditName, setCreditName] = useState("");  // Estado para o nome do primeiro input do incluir name
+    const [creditValue, setCreditValue] = useState(""); // Estado para para o value do primeiro input do incluir value
+    const [debitName, setDebitName] = useState("");
+    const [debitValue, setDebitValue] = useState("");
+
+    const [debitStatusInit, setDebitStatusInit] = useState("PENDENTE");
 
     // Função para adicionar um novo par de inputs para crédito
     function handleAddCredit() {
         dispatch(addCredit())
         console.log(creditsListState)
     }
-    
+
     // Função para atualizar o valor de um crédito específico
 
     function handleCreditChange(index, field, value) {
@@ -46,7 +65,53 @@ export function IncludeTab({activeTab, tab, inputNameRef, inputMonthRef, inputYe
     function handleRemoveDebitIncluir(index) {
         dispatch(removeDebit(index));
     }
-    
+
+    async function handleOnClickIncluir() {
+        const name = inputNameRef.current.value;
+        const month = inputMonthRef.current.value;
+        const year = inputYearRef.current.value;
+
+        try {
+            const credits = [
+                { name: creditName, value: creditValue },
+                ...creditsListState.map(credit => ({ name: credit.name, value: credit.value }))
+            ];
+            const debts = [
+                { name: debitName, value: debitValue, status: debitStatusInit },
+                ...debtsListState.map(debit => ({ name: debit.name, value: debit.value, status: debit.status }))
+            ];
+            // console.log(debts)
+
+            const response = await createBillingCycle(name, month, year, credits, debts);
+            console.log(response)
+            dispatch(setMessage(response.message || "Adicionado com sucesso!"));
+            dispatch(setMessageType("success"))
+
+            pegaBillingCycles(); // Atualiza a lista após inclusão
+
+            // Limpar os inputs
+            inputNameRef.current.value = "";
+            inputMonthRef.current.value = "";
+            inputYearRef.current.value = "";
+
+            setCreditName("")
+            setCreditValue("")
+            dispatch(setCreditsListState([]));
+
+            setDebitName("")
+            setDebitValue("")
+            dispatch(setDebtsListState([]));
+
+        } catch (errorMessage) {
+            
+            dispatch(setMessage(errorMessage || 'Erro sendo avaliado'));
+            dispatch(setMessageType("error"))
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        setTimeout(() => dispatch(setMessage("")), 5000); // Remover a mensagem após 5 segundos
+    }
+
     return (
         <>
             {/* Aba Incluir */}
@@ -60,7 +125,7 @@ export function IncludeTab({activeTab, tab, inputNameRef, inputMonthRef, inputYe
                             <label>Nome do ciclo de pagamento: </label>
                             <input ref={inputNameRef} type="text" placeholder="Nome do ciclo ( ex: Ciclo Janeiro de 25 )" className=" !p-3 !mb-3 !w-[40%]" />
                             <label>Mês:</label>
-                            <input ref={inputMonthRef} type="text" placeholder="Mês ( ex: Janeiro )" className=" !p-3 !mb-3 !w-[40%]" />
+                            <input ref={inputMonthRef} type="text" placeholder="Mês ( ex: 1 )" className=" !p-3 !mb-3 !w-[40%]" />
                             <label>Ano:</label>
                             <input ref={inputYearRef} type="text" placeholder="Ano ( ex: 2025 )" className=" !p-3 !mb-3 !w-[40%]" />
                         </form>

@@ -1,27 +1,20 @@
-import { useRef, useState } from "react";
-import { createBillingCycle, deleteBillingCycle, updateBillingCycle, useGetBillingCycles } from "../services/service.module";
+import { useState } from "react";
+import {deleteBillingCycle, updateBillingCycle, useGetBillingCycles } from "../services/service.module";
 import { ListTab } from "../components/ListTab";
 import { IncludeTab } from "../components/IncludeTab";
 import { ChangeTab } from "../components/ChangeTab";
 import { useDispatch, useSelector } from "react-redux"
 import { setActiveTab } from "../store/reducers/ActiveTabSlice";
-import { setCreditsListState } from "../store/reducers/HandleCreditsList";
-import { setDebtsListState } from "../store/reducers/HandleDebtsList";
 
 export function BillingCycle() {
-    
+
     const dispatch = useDispatch();
 
     const { billings, pegaBillingCycles } = useGetBillingCycles();
 
-    const [message, setMessage] = useState(""); // Estado para armazenar mensagens
-    const [messageType, setMessageType] = useState("success"); // Define tipo de mensagem
-    const [creditName, setCreditName] = useState("");  // Estado para o nome do primeiro input do incluir name
-    const [creditValue, setCreditValue] = useState(""); // Estado para para o value do primeiro input do incluir value
-    const [debitName, setDebitName] = useState("");
-    const [debitValue, setDebitValue] = useState("");
-    const [debitStatusInit, setDebitStatusInit] = useState("PENDENTE");
-    
+    const message = useSelector((state) => state.message.text);
+    const messageType = useSelector((state) => state.messageType.type);
+
     const [guardaDadosParaAlterar, setGuardaDadosParaAlterar] = useState({
         id: "",
         name: "",
@@ -31,66 +24,14 @@ export function BillingCycle() {
         debts: []
     })
 
-    const inputNameRef = useRef('');
-    const inputMonthRef = useRef('');
-    const inputYearRef = useRef('');
-
     const mostrarListarIncluir = useSelector((state) => state.listarIncluir.mostrarListarIncluir);
     const activeTab = useSelector((state) => state.activeTab.activeTab)
     const mostrarAlterar = useSelector((state) => state.mostrarAlterar.mostrarAlterar)
 
-    const creditsListState = useSelector(state => state.credits.creditsListState);
-    const debtsListState = useSelector(state => state.debts.debtsListState);
-
+    
     function handleTabClick(tab) {
         dispatch(setActiveTab(tab)) // Atualiza a aba ativa
     }
-
-
-    async function handleOnClickIncluir() {
-        const name = inputNameRef.current.value;
-        const month = inputMonthRef.current.value;
-        const year = inputYearRef.current.value;
-
-        try {
-            const credits = [
-                { name: creditName, value: creditValue },
-                ...creditsListState.map(credit => ({ name: credit.name, value: credit.value }))
-            ];
-            const debts = [
-                { name: debitName, value: debitValue, status: debitStatusInit },
-                ...debtsListState.map(debit => ({ name: debit.name, value: debit.value, status: debit.status }))
-            ];
-            console.log(debts)
-
-            const response = await createBillingCycle(name, month, year, credits, debts);
-            setMessage(response.message || "Adicionado com sucesso!");
-            setMessageType("success"); // Mensagem positiva
-
-            pegaBillingCycles(); // Atualiza a lista após inclusão
-
-            // Limpar os inputs
-            inputNameRef.current.value = "";
-            inputMonthRef.current.value = "";
-            inputYearRef.current.value = "";
-
-            setCreditName("")
-            setCreditValue("")
-            dispatch(setCreditsListState([]));
-
-            setDebitName("")
-            setDebitValue("")
-            dispatch(setDebtsListState([]));
-
-        } catch (errorMessage) {
-            setMessage(errorMessage);
-            setMessageType("error"); // Mensagem de erro
-        }
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-        setTimeout(() => setMessage(""), 5000); // Remover a mensagem após 5 segundos
-    }
-
 
 
     async function handleOnClickAlterarBillingCycle() {
@@ -99,34 +40,37 @@ export function BillingCycle() {
             // Chama a função para atualizar o ciclo de cobrança
 
             const response = await updateBillingCycle(guardaDadosParaAlterar.id, guardaDadosParaAlterar.name, guardaDadosParaAlterar.month, guardaDadosParaAlterar.year, guardaDadosParaAlterar.credits, guardaDadosParaAlterar.debts);
-            setMessage(response.message || "Alterado com sucesso!");
-            setMessageType("success"); // Mensagem de sucesso
+
+            dispatch(setMessage(response.message || "Adicionado com sucesso!"));
+            dispatch(setMessageType("success"))
 
             pegaBillingCycles(); // Atualiza a lista após alteração
 
         } catch (errorMessage) {
-            setMessage(errorMessage);
-            setMessageType("error"); // Mensagem de erro
+            dispatch(setMessage(errorMessage));
+            dispatch(setMessageType("error"))
         }
         window.scrollTo({ top: 0, behavior: "smooth" });
 
-        setTimeout(() => setMessage(""), 5000); // Remover a mensagem após 5 segundos
+        setTimeout(() => dispatch(setMessage("")), 5000); // Remover a mensagem após 5 segundos
     }
 
 
     async function handleOnClickExcluir(id) {
         try {
             const response = await deleteBillingCycle(id);
-            setMessage(response.message || "Excluído com sucesso!");
-            setMessageType("success");
+
+            dispatch(setMessage(response.message || "Excluído com sucesso!"));
+            dispatch(setMessageType("success"))
             pegaBillingCycles(); // Atualiza a lista após exclusão
         } catch (errorMessage) {
-            setMessage(errorMessage);
-            setMessageType("error");
+            dispatch(setMessage(errorMessage));
+            dispatch(setMessageType("error"))
         }
         window.scrollTo({ top: 0, behavior: "smooth" });
-        setTimeout(() => setMessage(""), 5000);
+        setTimeout(() => dispatch(setMessage("")), 5000);
     }
+
 
     function handleRemoveCreditAlterar(index) {
         setGuardaDadosParaAlterar((prevData) => {
@@ -134,13 +78,14 @@ export function BillingCycle() {
                 const updatedCredits = prevData.credits.filter((_, i) => i !== index);
                 return { ...prevData, credits: updatedCredits };
             } else {
-                setMessage("Deve haver pelo menos 1 campo de crédito");
-                setMessageType("error"); // Define o tipo da mensagem
-                setTimeout(() => setMessage(""), 5000);
+                dispatch(setMessage("Deve haver pelo menos 1 campo de crédito"));
+                dispatch(setMessageType("error"))
+                setTimeout(() => dispatch(setMessage("")), 5000);
                 return prevData; // Retorna o estado atual sem modificar nada
             }
         });
     }
+
 
     function handleRemoveDebitAlterar(index) {
         setGuardaDadosParaAlterar((prevData) => {
@@ -148,13 +93,14 @@ export function BillingCycle() {
                 const updatedDebts = prevData.debts.filter((_, i) => i !== index);
                 return { ...prevData, debts: updatedDebts };
             } else {
-                setMessage("Deve haver pelo menos 1 campo de débito");
-                setMessageType("error"); // Define o tipo da mensagem
-                setTimeout(() => setMessage(""), 5000);
+                dispatch(setMessage("Deve haver pelo menos 1 campo de débito"));
+                dispatch(setMessageType("error"))
+                setTimeout(() => dispatch(setMessage("")), 5000);
                 return prevData; // Retorna o estado atual sem modificar nada
             }
         });
     }
+
 
     function handleAddCreditAlterar() {
         setGuardaDadosParaAlterar((prevData) => ({
@@ -162,6 +108,7 @@ export function BillingCycle() {
             credits: [...prevData.credits, { name: "", value: "" }] // Adiciona um novo crédito vazio
         }));
     }
+
 
     function handleAddDebitAlterar() {
         setGuardaDadosParaAlterar((prevData) => ({
@@ -174,7 +121,7 @@ export function BillingCycle() {
 
     return (
         <div className="!p-10">
-          
+
             {message && (
                 <div className={`!p-3 !mb-4 rounded ${messageType === "success" ? "bg-green-500" : "bg-red-500"} text-white`}>
                     {message}
@@ -220,7 +167,7 @@ export function BillingCycle() {
 
 
                 {/*Conteúdo Aba Incluir */}
-                <IncludeTab activeTab={activeTab} tab="incluir" inputNameRef={inputNameRef} inputMonthRef={inputMonthRef} inputYearRef={inputYearRef} creditName={creditName} creditValue={creditValue} setCreditName={setCreditName} setCreditValue={setCreditValue} debitName={debitName} setDebitName={setDebitName} debitStatusInit={debitStatusInit} setDebitValue={setDebitValue} setDebitStatusInit={setDebitStatusInit} handleOnClickIncluir={handleOnClickIncluir} debitValue={debitValue}></IncludeTab>
+                <IncludeTab activeTab={activeTab} tab="incluir"></IncludeTab>
 
 
                 {/*Conteúdo Aba Alterar */}

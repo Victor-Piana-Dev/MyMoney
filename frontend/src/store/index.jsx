@@ -8,6 +8,8 @@ import listarIncluirSlice from './reducers/HandleTabsListIncludeSlice'
 import activeTabSlice from './reducers/ActiveTabSlice'
 import creditsSlice from './reducers/HandleCreditsList'
 import debtsSlice from './reducers/HandleDebtsList'
+import messageSlice from './reducers/MessageSlice'
+import messageTypeSlice from './reducers/MessageTypeSlice'
 
 // Configuração do Redux Persist
 const persistConfig = {
@@ -24,6 +26,8 @@ const rootReducer = combineReducers({
     activeTab: activeTabSlice,
     credits: creditsSlice,
     debts: debtsSlice,
+    message: messageSlice,
+    messageType: messageTypeSlice
 });
 
 // Aplica persistência ao reducer
