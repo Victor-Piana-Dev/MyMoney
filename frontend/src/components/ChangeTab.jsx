@@ -1,13 +1,88 @@
+import { useDispatch, useSelector } from "react-redux";
 import { useHandleBack } from "../hooks/useHandleBack";
+import { updateBillingCycle, useGetBillingCycles } from "../services/service.module";
+import { setMessage } from "../store/reducers/MessageSlice";
+import { setMessageType } from "../store/reducers/MessageTypeSlice";
 import { ValueBoxGroup } from "./ValueBoxGroup";
+import { setDataCycle } from "../store/reducers/GlobalDataChangeTabSlice";
 
-export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDadosParaAlterar, handleAddCreditAlterar, handleRemoveCreditAlterar, handleAddDebitAlterar, handleRemoveDebitAlterar, handleVoltar, handleOnClickAlterarBillingCycle}) {
-    
+
+export function ChangeTab({ activeTab, tab }) {
+
 
     let totalCreditValueAlterar = 0
     let totalDebitValueAlterar = 0
 
     const handleBack = useHandleBack()
+
+    const dispatch = useDispatch();
+
+    const { billings, pegaBillingCycles } = useGetBillingCycles();
+
+    const guardaDadosParaAlterar = useSelector(state => state.globalDataChange);
+
+
+    async function handleOnClickAlterarBillingCycle() {
+
+        try {
+            // Chama a função para atualizar o ciclo de cobrança
+
+            const response = await updateBillingCycle(guardaDadosParaAlterar.id, guardaDadosParaAlterar.name, guardaDadosParaAlterar.month, guardaDadosParaAlterar.year, guardaDadosParaAlterar.credits, guardaDadosParaAlterar.debts);
+
+            dispatch(setMessage(response.message || "Adicionado com sucesso!"));
+            dispatch(setMessageType("success"))
+
+            pegaBillingCycles(); // Atualiza a lista após alteração
+
+        } catch (errorMessage) {
+            dispatch(setMessage(errorMessage));
+            dispatch(setMessageType("error"))
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        setTimeout(() => dispatch(setMessage("")), 5000); // Remover a mensagem após 5 segundos
+    }
+
+
+    function handleRemoveCreditAlterar(index) {
+
+        if (guardaDadosParaAlterar.credits.length > 1) {
+            const updatedCredits = guardaDadosParaAlterar.credits.filter((_, i) => i !== index);
+            dispatch(setDataCycle({ credits: updatedCredits }));
+        } else {
+            dispatch(setMessage("Deve haver pelo menos 1 campo de crédito"));
+            dispatch(setMessageType("error"));
+            setTimeout(() => dispatch(setMessage("")), 5000);
+        }
+    }
+
+    
+    function handleRemoveDebitAlterar(index) {
+
+
+        if (guardaDadosParaAlterar.debts.length > 1) {
+            const updatedDebts = guardaDadosParaAlterar.debts.filter((_, i) => i !== index);
+            dispatch(setDataCycle({ debts: updatedDebts }));
+        } else {
+            dispatch(setMessage("Deve haver pelo menos 1 campo de débito"));
+            dispatch(setMessageType("error"));
+            setTimeout(() => dispatch(setMessage("")), 5000);
+        }
+    }
+
+
+    function handleAddCreditAlterar() {
+
+        const updatedCredits = [...guardaDadosParaAlterar.credits, { name: "", value: "" }];
+        dispatch(setDataCycle({ credits: updatedCredits }));
+
+    }
+
+
+    function handleAddDebitAlterar() {
+        const updatedDebits = [...guardaDadosParaAlterar.debts, { name: "", value: "", status: "PENDENTE" }];
+        dispatch(setDataCycle({ debts: updatedDebits }));
+    }
 
     return (
         <>
@@ -15,18 +90,16 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
             {activeTab === tab && (
                 <div className="!p-5 rounded-lg bgColor2 dark:bg-gray-800">
                     <h3 className="!mb-15 color1 text-center">Altere os dados!</h3>
-    
+
                     <form>
                         <div className="flex flex-col">
                             <label>Nome do ciclo de pagamento: </label>
+                            {console.log('guardaDadosParaAlterar', guardaDadosParaAlterar)}
                             <input
                                 type="text"
                                 placeholder="Nome do ciclo ( ex: Ciclo Janeiro de 25 )"
                                 value={guardaDadosParaAlterar.name} // O valor do input vem do estado
-                                onChange={(e) => setGuardaDadosParaAlterar({
-                                    ...guardaDadosParaAlterar,
-                                    name: e.target.value // Atualiza o estado quando o valor mudar
-                                })}
+                                onChange={(e) => dispatch(setDataCycle({ name: e.target.value }))}
                                 className="!p-3 !w-[30%] !h-[50px] !mb-3"
                             />
                             <label>Mês:</label>
@@ -34,10 +107,7 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                 type="text"
                                 placeholder="Mês ( ex: Janeiro )"
                                 value={guardaDadosParaAlterar.month}
-                                onChange={(e) => setGuardaDadosParaAlterar({
-                                    ...guardaDadosParaAlterar,
-                                    month: e.target.value
-                                })}
+                                onChange={(e) => dispatch(setDataCycle({ month: e.target.value }))}
                                 className="!p-3 !w-[30%] !h-[50px] !mb-3"
                             />
                             <label>Ano:</label>
@@ -45,10 +115,7 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                 type="text"
                                 placeholder="Ano ( ex: 2025 )"
                                 value={guardaDadosParaAlterar.year}
-                                onChange={(e) => setGuardaDadosParaAlterar({
-                                    ...guardaDadosParaAlterar,
-                                    year: e.target.value
-                                })}
+                                onChange={(e) => dispatch(setDataCycle({ year: e.target.value }))}
                                 className="!p-3 !w-[30%] !h-[50px] !mb-3"
                             />
                         </div>
@@ -66,10 +133,8 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                     onChange={(e) => {
                                         const updatedCredits = [...guardaDadosParaAlterar.credits];
                                         updatedCredits[index] = { ...updatedCredits[index], name: e.target.value };
-                                        setGuardaDadosParaAlterar({
-                                            ...guardaDadosParaAlterar,
-                                            credits: updatedCredits,
-                                        });
+                                    
+                                        dispatch(setDataCycle({ credits: updatedCredits }));
                                     }}
                                     className="!p-3 !w-[30%] !h-[50px] !mb-3"
                                 />
@@ -80,11 +145,12 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                     value={credit.value}
                                     onChange={(e) => {
                                         const updatedCredits = [...guardaDadosParaAlterar.credits];
-                                        updatedCredits[index] = { ...updatedCredits[index], value: e.target.value };
-                                        setGuardaDadosParaAlterar({
-                                            ...guardaDadosParaAlterar,
-                                            credits: updatedCredits,
-                                        });
+                                        updatedCredits[index] = {
+                                            ...updatedCredits[index],
+                                            value: e.target.value
+                                        };
+                                    
+                                        dispatch(setDataCycle({ credits: updatedCredits }));
                                     }}
                                     className="!p-3 !w-[30%] !h-[50px] !mb-3 !ml-3"
                                 />
@@ -106,11 +172,12 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                     value={debt.name}
                                     onChange={(e) => {
                                         const updatedDebts = [...guardaDadosParaAlterar.debts];
-                                        updatedDebts[index] = { ...updatedDebts[index], name: e.target.value };
-                                        setGuardaDadosParaAlterar({
-                                            ...guardaDadosParaAlterar,
-                                            debts: updatedDebts,
-                                        });
+                                        updatedDebts[index] = {
+                                            ...updatedDebts[index],
+                                            name: e.target.value
+                                        };
+                                    
+                                        dispatch(setDataCycle({ debts: updatedDebts }));
                                     }}
                                     className="!p-3 !w-[30%] !h-[50px] !mb-3"
                                 />
@@ -121,11 +188,12 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                     value={debt.value}
                                     onChange={(e) => {
                                         const updatedDebts = [...guardaDadosParaAlterar.debts];
-                                        updatedDebts[index] = { ...updatedDebts[index], value: e.target.value };
-                                        setGuardaDadosParaAlterar({
-                                            ...guardaDadosParaAlterar,
-                                            debts: updatedDebts,
-                                        });
+                                        updatedDebts[index] = {
+                                            ...updatedDebts[index],
+                                            value: e.target.value
+                                        };
+                                    
+                                        dispatch(setDataCycle({ debts: updatedDebts }));
                                     }}
                                     className="!p-3 !w-[30%] !h-[50px] !mb-3 !ml-3"
                                 />
@@ -134,11 +202,12 @@ export function ChangeTab({activeTab, tab, guardaDadosParaAlterar, setGuardaDado
                                     value={debt.status}  // Estado para armazenar o status do débito
                                     onChange={(e) => {
                                         const updatedDebts = [...guardaDadosParaAlterar.debts];
-                                        updatedDebts[index] = { ...updatedDebts[index], status: e.target.value };
-                                        setGuardaDadosParaAlterar({
-                                            ...guardaDadosParaAlterar,
-                                            debts: updatedDebts,
-                                        });
+                                        updatedDebts[index] = {
+                                            ...updatedDebts[index],
+                                            status: e.target.value
+                                        };
+                                    
+                                        dispatch(setDataCycle({ debts: updatedDebts }));
                                     }}
                                     className="!p-2 border rounded w-52 !ml-[10px]"
                                 >

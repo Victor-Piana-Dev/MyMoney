@@ -10,6 +10,7 @@ import creditsSlice from './reducers/HandleCreditsList'
 import debtsSlice from './reducers/HandleDebtsList'
 import messageSlice from './reducers/MessageSlice'
 import messageTypeSlice from './reducers/MessageTypeSlice'
+import globalDataChangeTabSlice from './reducers/GlobalDataChangeTabSlice'
 
 // Configuração do Redux Persist
 const persistConfig = {
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
     credits: creditsSlice,
     debts: debtsSlice,
     message: messageSlice,
-    messageType: messageTypeSlice
+    messageType: messageTypeSlice,
+    globalDataChange: globalDataChangeTabSlice
 });
 
 // Aplica persistência ao reducer
