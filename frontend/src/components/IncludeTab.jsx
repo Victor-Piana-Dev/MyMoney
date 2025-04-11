@@ -15,6 +15,7 @@ export function IncludeTab({ activeTab, tab }) {
     const dispatch = useDispatch();
 
     const { billings, pegaBillingCycles } = useGetBillingCycles();
+    
 
     // const message = useSelector((state) => state.message.text);
 
@@ -87,7 +88,7 @@ export function IncludeTab({ activeTab, tab }) {
             dispatch(setMessage(response.message || "Adicionado com sucesso!"));
             dispatch(setMessageType("success"))
 
-            // pegaBillingCycles(); // Atualiza a lista após inclusão
+            pegaBillingCycles(); // Atualiza a lista após inclusão(atualiza o estado global do redux)
 
             // Limpar os inputs
             inputNameRef.current.value = "";

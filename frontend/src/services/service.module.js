@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import { setUser } from '../store/reducers/userSlice';
+import { useDispatch } from "react-redux";
+import { setBillings } from "../store/reducers/BillingCycleSlice";
 
 
 export function useGetSummary() {
@@ -23,22 +25,44 @@ export function useGetSummary() {
 
 
 
-export function useGetBillingCycles() {
-    const [billings, setBillings] = useState([]);
+// export function useGetBillingCycles() {
+//     const [billings, setBillings] = useState([]);
 
-    async function pegaBillingCycles() {
-        const response = await api.get("/api/billingCycles");
+//     async function pegaBillingCycles() {
+//         const response = await api.get("/api/billingCycles");
         
-        setBillings(response.data);
+//         setBillings(response.data);
+//     }
+
+//     useEffect(() => {
+//         pegaBillingCycles();
+//     }, []);
+
+//     return { billings, pegaBillingCycles };
+// }
+
+
+export function useGetBillingCycles() {
+    const dispatch = useDispatch(); // Usamos o dispatch para despachar a ação para o Redux
+
+    // Função para buscar os dados de billing cycles e atualizar o Redux
+    async function pegaBillingCycles() {
+        try {
+            const response = await api.get("/api/billingCycles");
+            // Atualiza o estado global do Redux com os dados recebidos da API
+            dispatch(setBillings(response.data));
+        } catch (error) {
+            console.error("Erro ao buscar billing cycles:", error);
+        }
     }
 
     useEffect(() => {
-        pegaBillingCycles();
-    }, []);
+        pegaBillingCycles(); // Chama a função para buscar os dados na primeira renderização
+    }, [dispatch]); // O useEffect depende do dispatch, mas não precisa ser alterado com frequência
 
-    return { billings, pegaBillingCycles };
+    // Não precisamos mais retornar o estado `billings` local, pois agora o estado global é acessado via Redux
+    return { pegaBillingCycles }; // Retorna apenas a função para buscar dados, se necessário
 }
-
 
 
 export async function createBillingCycle(name, month, year, credits, debts) {

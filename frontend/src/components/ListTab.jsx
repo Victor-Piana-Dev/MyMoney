@@ -1,15 +1,30 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHandleOnClickAlterar } from "../hooks/useHandleOnClickAlterar";
 import { setDataCycle } from "../store/reducers/GlobalDataChangeTabSlice";
 import { deleteBillingCycle, useGetBillingCycles } from "../services/service.module";
 import { setMessage } from "../store/reducers/MessageSlice";
 import { setMessageType } from "../store/reducers/MessageTypeSlice";
+import { useEffect, useState } from "react";
 
 export function ListTab({ activeTab, tab }) {
     const dispatch = useDispatch();
     const handleOnClickAlterar = useHandleOnClickAlterar()
-    const { billings, pegaBillingCycles } = useGetBillingCycles();
-    pegaBillingCycles(); // Atualiza a lista após inclusão (pegando do banco toda vez que o ListTab é chamado, talvez seja melhor criar um slice para o billings do includeTab e pegar os dados desse slice?)
+    const [firstRender, setFirstRender] = useState(true); // Estado para controlar a primeira renderização
+    const { pegaBillingCycles } = useGetBillingCycles();
+    const billings = useSelector(state => state.billingCycles.billings);
+
+    useEffect(() => {
+        // Se a aba ativa for a "listar" e for a primeira vez que o componente é exibido
+        console.log('tab', tab)
+        console.log('activeTab', activeTab)
+        console.log('firstRender', firstRender)
+        if (activeTab === tab && firstRender) {
+            pegaBillingCycles();  // Chama a função para carregar os dados
+            setFirstRender(false); // Atualiza para que a função não seja chamada novamente
+        }
+    }, [activeTab, tab, firstRender, pegaBillingCycles]); // Dependências de useEffect
+
+    // pegaBillingCycles(); // Atualiza a lista após inclusão (pegando do banco toda vez que o ListTab é chamado, talvez seja melhor criar um slice para o billings do includeTab e pegar os dados desse slice?)
     async function handleOnClickExcluir(id) {
         try {
             const response = await deleteBillingCycle(id);
